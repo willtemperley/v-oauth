@@ -3,17 +3,17 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.vaadin.addons</groupId>
-	<artifactId>v-guice-example</artifactId>
-	<name>v-guice-example</name>
-	<version>0.0.1-SNAPSHOT</version>
-	<packaging>war</packaging>
+	<artifactId>v-oauth</artifactId>
+	<name>v-oauth</name>
+	<version>0.1.0-SNAPSHOT</version>
+	<packaging>jar</packaging>
 
 	<properties>
-		<vaadin.version>7.1.10</vaadin.version>
+		<vaadin.version>7.3-SNAPSHOT</vaadin.version>
+		<vaadin.version>7.3.0.beta1</vaadin.version>
 
 		<vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
-
-		<v-guice.version>0.1.0</v-guice.version>
+		<oauth.version>1.18.0-rc</oauth.version>
 
 	</properties>
 
@@ -29,120 +29,33 @@
 				</configuration>
 			</plugin>
 
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-resources-plugin</artifactId>
-				<version>2.4.2</version>
-				<executions>
-					<execution>
-						<id>default-copy-resources</id>
-						<phase>process-resources</phase>
-						<goals>
-							<goal>copy-resources</goal>
-						</goals>
-						<configuration>
-							<overwrite>true</overwrite>
-							<outputDirectory>${project.build.directory}/${project.artifactId}-${project.version}/</outputDirectory>
-							<resources>
-								<resource>
-									<directory>${project.basedir}/src/main/resources</directory>
-								</resource>
-							</resources>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-
-			<plugin>
-				<groupId>com.vaadin</groupId>
-				<artifactId>vaadin-maven-plugin</artifactId>
-				<version>${vaadin.plugin.version}</version>
-				<configuration>
-					<extraJvmArgs>-Xmx4096M -Xss1024k</extraJvmArgs>
-					<webappDirectory>${basedir}/src/main/webapp/VAADIN/widgetsets</webappDirectory>
-					<hostedWebapp>${basedir}/src/main/webapp/VAADIN/widgetsets</hostedWebapp>
-					<noServer>true</noServer>
-					<draftCompile>false</draftCompile>
-					<style>OBF</style>
-					<!-- 
-					 -->
-					<enableClosureCompiler>false</enableClosureCompiler>
-					<compileReport>false</compileReport>
-					<runTarget>http://localhost:8080/</runTarget>
-
-				</configuration>
-				<executions>
-					<execution>
-						<id>vaadin-compile-on-mvn-install</id>
-						<goals>
-							<goal>compile</goal>
-						</goals>
-						<phase>compile</phase>
-					</execution>
-					<execution>
-						<id>vaadin-clean-on-mvn-install</id>
-						<goals>
-							<goal>clean</goal>
-						</goals>
-						<phase>clean</phase>
-					</execution>
-					<execution>
-						<id>vaadin-compile-theme</id>
-						<goals>
-							<goal>compile-theme</goal>
-						</goals>
-						<phase>clean</phase>
-					</execution>
-				</executions>
-			</plugin>
-
 		</plugins>
-
-		<pluginManagement>
-			<plugins>
-				<!--This plugin's configuration is used to store Eclipse m2e settings 
-					only. It has no influence on the Maven build itself. -->
-				<plugin>
-					<groupId>org.eclipse.m2e</groupId>
-					<artifactId>lifecycle-mapping</artifactId>
-					<version>1.0.0</version>
-					<configuration>
-						<lifecycleMappingMetadata>
-							<pluginExecutions>
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>com.vaadin</groupId>
-										<artifactId>
-											vaadin-maven-plugin
-										</artifactId>
-										<versionRange>
-											[7.0.2,)
-										</versionRange>
-										<goals>
-											<goal>resources</goal>
-											<goal>compile</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<ignore></ignore>
-									</action>
-								</pluginExecution>
-							</pluginExecutions>
-						</lifecycleMappingMetadata>
-					</configuration>
-				</plugin>
-
-
-			</plugins>
-		</pluginManagement>
 	</build>
 
 	<dependencies>
+		<!-- OAuth -->
+		<dependency>
+			<groupId>com.google.oauth-client</groupId>
+			<artifactId>google-oauth-client-servlet</artifactId>
+			<version>${oauth.version}</version>
+		</dependency>
 
 		<dependency>
-			<groupId>org.vaadin.addons</groupId>
-			<artifactId>v-guice</artifactId>
-			<version>${v-guice.version}</version>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>2.2.4</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.google.http-client</groupId>
+			<artifactId>google-http-client-jackson2</artifactId>
+			<version>${oauth.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.dynjs</groupId>
+			<artifactId>dynjs</artifactId>
+			<version>0.2.2</version>
 		</dependency>
 
 		<dependency>
@@ -201,6 +114,14 @@
 			<scope>test</scope>
 		</dependency>
 
+
 	</dependencies>
+
+	<repositories>
+		<repository>
+			<id>vaadin-addons</id>
+			<url>http://maven.vaadin.com/vaadin-addons</url>
+		</repository>
+	</repositories>
 
 </project>
