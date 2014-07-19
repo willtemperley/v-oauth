@@ -10,12 +10,9 @@
 	<packaging>jar</packaging>
 
 	<properties>
-		<vaadin.version>7.3-SNAPSHOT</vaadin.version>
 		<vaadin.version>7.3.0.beta1</vaadin.version>
-
 		<vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
 		<oauth.version>1.18.0-rc</oauth.version>
-
 	</properties>
 
 	<build>
