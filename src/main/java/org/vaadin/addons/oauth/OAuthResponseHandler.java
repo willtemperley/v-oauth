@@ -43,9 +43,6 @@ public class OAuthResponseHandler implements RequestHandler {
 		String code = vsRequest.getParameter("code");
 		String securityToken = vsRequest.getParameter("state");
 		if (code != null) {
-			
-			System.out.println("REQUEST URI: " + vsRequest.getRequestURI());
-			System.out.println("Query string: " + vsRequest.getQueryString());
 
 			boolean verified = oAuthManager.verifySecurityToken(securityToken);
 			
@@ -56,8 +53,6 @@ public class OAuthResponseHandler implements RequestHandler {
 				Gson g = new Gson();
 				UserInfo userInfo = g.fromJson(j, UserInfo.class);
 			
-				System.out.println(userInfo.getEmail());
-			
 				authInfo.setEmail(userInfo.getEmail());
 				
 				if (userInfo.getEmail().equals("willtemperley@gmail.com")) {
@@ -65,8 +60,7 @@ public class OAuthResponseHandler implements RequestHandler {
 				}
 
 				vsResponse.sendRedirect(oAuthManager.getRedirect());
-//				System.out.println("Sending redirect: " + oAuthManager.getRedirect());
-				return false;
+				return true;
 				
 			} else {
 				System.out.println("invalid security token");
