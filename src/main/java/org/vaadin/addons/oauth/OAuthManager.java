@@ -2,8 +2,7 @@ package org.vaadin.addons.oauth;
 
 import java.io.IOException;
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,14 +35,10 @@ public final class OAuthManager {
 
 	Logger logger = LoggerFactory.getLogger(OAuthManager.class);
 
-	private static final String USER_INFO_URL = "https://www.googleapis.com/oauth2/v1/userinfo";
 	private static final JsonFactory JSON_FACTORY = new JacksonFactory();
 	private static final HttpTransport HTTP_TRANSPORT = new NetHttpTransport();
 
 	
-	private static final String OPENID_SCOPE = "https://www.googleapis.com/plus/v1/people/me/openIdConnect";
-	private static final String PROFILE_SCOPE = "https://www.googleapis.com/auth/userinfo.profile";
-	private static final String USERINFO_SCOPE = "https://www.googleapis.com/auth/userinfo.email";
 	
 	private String securityToken;
 
@@ -52,11 +47,11 @@ public final class OAuthManager {
 	private OAuthCredentials oauthCredentials;
 
 	@Inject
-	public OAuthManager(OAuthCredentials oAuthCredentials) {
+	public OAuthManager(Map<String, OAuthCredentials> oAuthCredentialMap) {
 		
 		System.out.println("OAUTH MANAGER CREATED: " + this.hashCode());
 		
-		this.oauthCredentials = oAuthCredentials;
+		this.oauthCredentials = oAuthCredentialMap.get("google");
 
 		flow = getCodeFlow(oauthCredentials);
 
@@ -85,18 +80,12 @@ public final class OAuthManager {
 	 */
 	private AuthorizationCodeFlow getCodeFlow(OAuthCredentials oauth) {
 		
-		List<String> scopes = new ArrayList<String>();
-//		scopes.add(OPENID_SCOPE);
-		scopes.add(PROFILE_SCOPE);
-		scopes.add(USERINFO_SCOPE);
-
-
 		AuthorizationCodeFlow codeFlow = new AuthorizationCodeFlow.Builder(
-				BearerToken.authorizationHeaderAccessMethod(), HTTP_TRANSPORT,
+				BearerToken.queryParameterAccessMethod(), HTTP_TRANSPORT,
 				JSON_FACTORY, new GenericUrl(oauth.getTokenUri()),
 				new ClientParametersAuthentication(oauth.getClientEmail(),
 						oauth.getClientSecret()), oauth.getClientId(),
-				oauth.getAuthUri()).setScopes(scopes).build();
+				oauth.getAuthUri()).setScopes(oauth.getScopes()).build();
 		return codeFlow;
 	}
 
@@ -117,7 +106,7 @@ public final class OAuthManager {
 	 * @param authCode
 	 *            authentication code provided by google
 	 */
-	public String getUserInfoJson(final String authCode) throws IOException {
+	public String getAuthToken(final String authCode) throws IOException {
 
 		final TokenResponse response = flow.newTokenRequest(authCode)
 				.setRedirectUri(oauthCredentials.getRedirectUris().get(0)).execute();
@@ -126,10 +115,18 @@ public final class OAuthManager {
 		final HttpRequestFactory requestFactory = HTTP_TRANSPORT
 				.createRequestFactory(credential);
 		// Make an authenticated request
-		final GenericUrl url = new GenericUrl(USER_INFO_URL);
+		String t = credential.getAccessToken();
+		
+		String userInfoUrl = oauthCredentials.getUserInfoUrl();
+		userInfoUrl = userInfoUrl + "?oauth2_access_token=" +t; 
+		final GenericUrl url = new GenericUrl(userInfoUrl);
+
+		
+
 		final HttpRequest request = requestFactory.buildGetRequest(url);
 		request.getHeaders().setContentType("application/json");
 		final String jsonIdentity = request.execute().parseAsString();
+		System.out.println(jsonIdentity);
 
 		return jsonIdentity;
 

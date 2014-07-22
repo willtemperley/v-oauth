@@ -36,6 +36,12 @@ public class OAuthCredentials {
 	@SerializedName("javascript_origins")
 	@Expose
 	private List<String> javascriptOrigins = new ArrayList<String>();
+	@SerializedName("scopes")
+	@Expose
+	private List<String> scopes = new ArrayList<String>();
+	@SerializedName("user_info_url")
+	@Expose
+	private String userInfoUrl;
 
 	public String getAuthUri() {
 		return authUri;
@@ -108,5 +114,19 @@ public class OAuthCredentials {
 	public void setJavascriptOrigins(List<String> javascriptOrigins) {
 		this.javascriptOrigins = javascriptOrigins;
 	}
-
+	
+	public List<String> getScopes() {
+		return scopes;
+	}
+	public void setScopes(List<String> scopes) {
+		this.scopes = scopes;
+	}
+	
+	public String getUserInfoUrl() {
+		return userInfoUrl;
+	}
+	
+	public void setUserInfoUrl(String userInfoUrl) {
+		this.userInfoUrl = userInfoUrl;
+	}
 }

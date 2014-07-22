@@ -1,4 +1,4 @@
-v-guice-example
+v-oauth
 ===============
 
-Very minimal example of a guice-vaadin application.
+provides  google and linked in OAuth2 utilities

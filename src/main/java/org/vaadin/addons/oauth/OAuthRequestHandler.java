@@ -14,19 +14,18 @@ import com.vaadin.server.VaadinServletRequest;
 import com.vaadin.server.VaadinServletResponse;
 import com.vaadin.server.VaadinSession;
 
-public class OAuthResponseHandler implements RequestHandler {
+public class OAuthRequestHandler implements RequestHandler {
 	
-	Logger logger = LoggerFactory.getLogger(OAuthResponseHandler.class);
+	private Logger logger = LoggerFactory.getLogger(OAuthRequestHandler.class);
 	
 	private final OAuthManager oAuthManager;
 
-	private SessionAuthInfo authInfo;
-	
+	private OAuthSubject oAuthSubject;
 
     @Inject
-	public OAuthResponseHandler(OAuthManager googleAuthHelper, SessionAuthInfo authInfo) {
-		this.oAuthManager = googleAuthHelper;
-		this.authInfo = authInfo;
+	public OAuthRequestHandler(OAuthManager oAuthManager, OAuthSubject oAuthSubject) {
+		this.oAuthManager = oAuthManager;
+		this.oAuthSubject = oAuthSubject;
 	}
 
 	@Override
@@ -35,7 +34,7 @@ public class OAuthResponseHandler implements RequestHandler {
 		VaadinServletRequest vsRequest = (VaadinServletRequest) request;
 		VaadinServletResponse vsResponse = (VaadinServletResponse) response;
 		
-		if (authInfo.getUserPrincipal() > 1) {
+		if (oAuthSubject.getUserPrincipal() > 1) {
 			//Do nothing
 			return false;
 		}
@@ -46,19 +45,26 @@ public class OAuthResponseHandler implements RequestHandler {
 
 			boolean verified = oAuthManager.verifySecurityToken(securityToken);
 			
+			System.out.println("Verified: " + verified);
+			
 			if (verified) {
 					
-				String j = oAuthManager.getUserInfoJson(code);
+				System.out.println("CODE: " + code);
+				String j = oAuthManager.getAuthToken(code);
 
 				Gson g = new Gson();
 				UserInfo userInfo = g.fromJson(j, UserInfo.class);
 			
-				authInfo.setEmail(userInfo.getEmail());
 				
-				if (userInfo.getEmail().equals("willtemperley@gmail.com")) {
-					authInfo.setUserPrincipal(1l);
-				}
+				/*
+				 * The implementation should manage the credentials
+				 */
+				oAuthSubject.setUserInfo(userInfo);
 
+				/*
+				 * This is just here to get rid of all the oauth parameters
+				 * Important to return true as the response has already been committed.
+				 */
 				vsResponse.sendRedirect(oAuthManager.getRedirect());
 				return true;
 				
