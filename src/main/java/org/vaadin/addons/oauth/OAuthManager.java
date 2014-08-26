@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.Map;
 
+import javax.inject.Inject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,13 +22,12 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.inject.Inject;
 
 /**
  * 
  * https://developers.google.com/accounts/docs/OAuth2Login
  * 
- * TODO: figure out and fix state issues in flow - it seems credentials are stored.
+ * 
  * 
  * @author will
  *
@@ -36,20 +37,19 @@ public final class OAuthManager {
 	Logger logger = LoggerFactory.getLogger(OAuthManager.class);
 
 	private static final JsonFactory JSON_FACTORY = new JacksonFactory();
+
 	private static final HttpTransport HTTP_TRANSPORT = new NetHttpTransport();
 
-	
-	
 	private String securityToken;
 
 	private final AuthorizationCodeFlow flow;
 
 	private OAuthCredentials oauthCredentials;
 
+	private Credential credential;
+
 	@Inject
 	public OAuthManager(Map<String, OAuthCredentials> oAuthCredentialMap) {
-		
-		System.out.println("OAUTH MANAGER CREATED: " + this.hashCode());
 		
 		this.oauthCredentials = oAuthCredentialMap.get("google");
 
@@ -73,7 +73,6 @@ public final class OAuthManager {
 	}
 
 	/**
-	 * TODO organize scopes properly.
 	 * 
 	 * @param oauth
 	 * @return
@@ -105,28 +104,37 @@ public final class OAuthManager {
 	 * @return JSON formatted user profile information
 	 * @param authCode
 	 *            authentication code provided by google
+	 * @throws IOException 
 	 */
-	public String getAuthToken(final String authCode) throws IOException {
+	public boolean getAuthToken(final String authCode) throws IOException  {
 
 		final TokenResponse response = flow.newTokenRequest(authCode)
 				.setRedirectUri(oauthCredentials.getRedirectUris().get(0)).execute();
-		final Credential credential = flow.createAndStoreCredential(response,
-				null);
-		final HttpRequestFactory requestFactory = HTTP_TRANSPORT
-				.createRequestFactory(credential);
+
+		credential = flow.createAndStoreCredential(response, null);
+
+		return true;
+		
+	}
+	
+	public String getUserInfo() throws IOException {
 		// Make an authenticated request
+		
+		HttpRequestFactory requestFactory = HTTP_TRANSPORT
+				.createRequestFactory(credential);
 		String t = credential.getAccessToken();
 		
-		String userInfoUrl = oauthCredentials.getUserInfoUrl();
-		userInfoUrl = userInfoUrl + "?oauth2_access_token=" +t; 
-		final GenericUrl url = new GenericUrl(userInfoUrl);
-
 		
+		String userInfoUrl = oauthCredentials.getUserInfoUrl();
+
+		//This is necessary for Linkedin but not google. Not sure why.
+		userInfoUrl = userInfoUrl + "?oauth2_access_token=" + t; 
+
+		final GenericUrl url = new GenericUrl(userInfoUrl);
 
 		final HttpRequest request = requestFactory.buildGetRequest(url);
 		request.getHeaders().setContentType("application/json");
 		final String jsonIdentity = request.execute().parseAsString();
-		System.out.println(jsonIdentity);
 
 		return jsonIdentity;
 

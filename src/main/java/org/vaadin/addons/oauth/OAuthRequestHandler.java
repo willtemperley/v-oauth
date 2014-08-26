@@ -2,11 +2,12 @@ package org.vaadin.addons.oauth;
 
 import java.io.IOException;
 
+import javax.inject.Inject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
-import com.google.inject.Inject;
 import com.vaadin.server.RequestHandler;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinResponse;
@@ -45,12 +46,11 @@ public class OAuthRequestHandler implements RequestHandler {
 
 			boolean verified = oAuthManager.verifySecurityToken(securityToken);
 			
-			System.out.println("Verified: " + verified);
-			
 			if (verified) {
 					
-				System.out.println("CODE: " + code);
-				String j = oAuthManager.getAuthToken(code);
+				oAuthManager.getAuthToken(code);
+				
+				String j = oAuthManager.getUserInfo();
 
 				Gson g = new Gson();
 				UserInfo userInfo = g.fromJson(j, UserInfo.class);
@@ -69,7 +69,6 @@ public class OAuthRequestHandler implements RequestHandler {
 				return true;
 				
 			} else {
-				System.out.println("invalid security token");
 				logger.error("Invalid security token.  Possible malicious attack.");
 			}
 
