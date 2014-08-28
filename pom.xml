@@ -10,7 +10,7 @@
 	<packaging>jar</packaging>
 
 	<properties>
-		<vaadin.version>7.3.0.beta1</vaadin.version>
+		<vaadin.version>7.3.0.rc1</vaadin.version>
 		<vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
 		<oauth.version>1.19.0</oauth.version>
 	</properties>
@@ -72,6 +72,7 @@
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-server</artifactId>
 			<version>${vaadin.version}</version>
+            <scope>provided</scope>
 		</dependency>
 
 		<dependency>
